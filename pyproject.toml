@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "byteforge-mcp-file-friend-api-python"
+version = "0.0.1"
+description = "File Friend Python client, resumable transfer CLI and reference helper"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [{name = "Jason Byteforge"}]
+dependencies = [
+    "byteforge-mcp-file-friend-models @ git+https://github.com/jmazzahacks/byteforge-mcp-file-friend-models.git@1282a681a41cd144b21593ab0820a724b9a485a6",
+]
+license = "MIT"
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://github.com/jmazzahacks/byteforge-mcp-file-friend-api-python"
+Issues = "https://github.com/jmazzahacks/byteforge-mcp-file-friend-api-python/issues"
+
+[project.scripts]
+ff = "byteforge_mcp_file_friend_api_python.cli:main"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/byteforge_mcp_file_friend_api_python"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--confcutdir=."
+
+[tool.ruff]
+line-length = 110
+
+[tool.uv]
+exclude-newer = "7 days"
