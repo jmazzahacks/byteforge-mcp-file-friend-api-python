@@ -5,7 +5,7 @@ Resumable uploads/downloads, the `ff` CLI and `open_reference`. The only runtime
 ## CLI
 
 
-Requires Python 3.13+ on a Unix system with `fcntl`; follow the local installation steps below until the client remote is published. Configure `FF_SERVER_URL` and `FF_TOKEN`, or `~/.config/ff/config.toml`:
+Requires Python 3.13+ on a Unix system with `fcntl`. Public repository: https://github.com/jmazzahacks/byteforge-mcp-file-friend-api-python. See the development installation steps below; consumers should install a reviewed immutable Git revision. Configure `FF_SERVER_URL` and `FF_TOKEN`, or `~/.config/ff/config.toml`:
 
 ```toml
 server_url = "https://ff.example.com"
@@ -63,7 +63,7 @@ Tests use the installed wheel, not source-path overrides, and exclude the parent
 
 Imports now use `byteforge_mcp_file_friend_api_python`; CLI commands, `FF_*` settings, reference JSON and resume file names remain unchanged. The client owns its redirect-blocking handler, preserving the original behavior without importing core. The legacy workspace implementation remains intact until final consumer migration.
 
-Public repositories under `jmazzahacks` and MIT licensing are approved. This checkpoint remains local; no client remote has been created.
+Licensed under MIT; see `LICENSE`. Public repository: `jmazzahacks/byteforge-mcp-file-friend-api-python`.
 
 ## Extraction validation
 
