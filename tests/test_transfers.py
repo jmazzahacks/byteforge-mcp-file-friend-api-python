@@ -1,6 +1,7 @@
 import hashlib
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from importlib.metadata import version
 from pathlib import Path
 
 import pytest
@@ -21,6 +22,10 @@ def downloads():
             pass
 
         def do_GET(self) -> None:
+            expected = f"byteforge-mcp-file-friend-api-python/{version('byteforge-mcp-file-friend-api-python')}"
+            if self.headers.get("User-Agent") != expected:
+                self.send_error(403)
+                return
             state["ranges"].append(self.headers.get("Range"))
             state["auth"].append(self.headers.get("Authorization"))
             start = int(self.headers["Range"].split("=")[1].split("-")[0]) if self.headers.get("Range") else 0

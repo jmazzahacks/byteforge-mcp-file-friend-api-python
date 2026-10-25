@@ -19,7 +19,7 @@ from urllib.request import Request, build_opener
 
 from byteforge_mcp_file_friend_models import FileReference, validate_id, validate_metadata
 
-from byteforge_mcp_file_friend_api_python._http import NoRedirects
+from byteforge_mcp_file_friend_api_python._http import USER_AGENT, NoRedirects
 
 BLOCK = 1024 * 1024
 MAX_CHUNK = 64 * BLOCK
@@ -125,6 +125,7 @@ class Client:
         self.cache = cache_dir or Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "ff"
         self.progress = progress
         self.opener = build_opener(NoRedirects())
+        self.opener.addheaders = [("User-Agent", USER_AGENT)]
         self.deadline = time.monotonic() + timeout
 
     def check_time(self) -> None:

@@ -3,6 +3,7 @@ import subprocess
 import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from importlib.metadata import version
 from pathlib import Path
 
 import pytest
@@ -27,7 +28,7 @@ def test_token_not_sent_to_public_status_or_redirect(tmp_path: Path, monkeypatch
             pass
 
         def do_GET(self) -> None:
-            requests.append((self.path, self.headers.get("Authorization")))
+            requests.append((self.path, self.headers.get("Authorization"), self.headers.get("User-Agent")))
             if self.path.endswith(FILE_ID):
                 body = json.dumps({"id": FILE_ID, "state": "uploading"}).encode()
                 self.send_response(200)
@@ -40,7 +41,7 @@ def test_token_not_sent_to_public_status_or_redirect(tmp_path: Path, monkeypatch
                 self.end_headers()
 
         def do_DELETE(self) -> None:
-            requests.append((self.path, self.headers.get("Authorization")))
+            requests.append((self.path, self.headers.get("Authorization"), self.headers.get("User-Agent")))
             self.send_response(302)
             self.send_header("Location", f"/api/files/{FILE_ID}")
             self.end_headers()
@@ -69,6 +70,8 @@ def test_token_not_sent_to_public_status_or_redirect(tmp_path: Path, monkeypatch
         assert result.returncode == 0
         assert json.loads(result.stdout)["state"] == "uploading"
         assert not result.stderr
+        expected = f"byteforge-mcp-file-friend-api-python/{version('byteforge-mcp-file-friend-api-python')}"
+        assert all(request[2] == expected for request in requests)
     finally:
         server.shutdown()
         server.server_close()

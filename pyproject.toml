@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "byteforge-mcp-file-friend-api-python"
-version = "0.0.1"
+version = "0.0.2"
 description = "File Friend Python client, resumable transfer CLI and reference helper"
 readme = "README.md"
 requires-python = ">=3.13"
