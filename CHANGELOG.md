@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.3
+
+- Move the `ff` executable and CLI module to `byteforge-mcp-file-friend-cli`.
+  Install the separate CLI application for shell use; Python API imports, wire
+  contracts, configuration and transfer caches are unchanged.
+
 ## 0.0.2
 
 - Identify all SDK and CLI requests with

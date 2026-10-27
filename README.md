@@ -1,29 +1,20 @@
 # File Friend Python client
 
-Resumable uploads/downloads, the `ff` CLI and `open_reference`. The only runtime dependency is the models package pinned to its reviewed GitHub commit; no core, PostgreSQL or Flask installation is required. MIT licensed.
+Resumable uploads/downloads through `Client` and `open_reference`. The only runtime dependency is the models package pinned to its reviewed GitHub commit; no core, PostgreSQL or Flask installation is required. MIT licensed.
 
-## CLI
+## Integration guide
 
+See [the integration guide](docs/INTEGRATION.md) for the production reference contract,
+producer/consumer examples, the released reviewed-reply email integration and its pilot test plan.
 
-Requires Python 3.13+ on a Unix system with `fcntl`. Public repository: https://github.com/jmazzahacks/byteforge-mcp-file-friend-api-python. See the development installation steps below; consumers should install a reviewed immutable Git revision. Configure `FF_SERVER_URL` and `FF_TOKEN`, or `~/.config/ff/config.toml`:
+## Command-line application
 
-```toml
-server_url = "https://ff.example.com"
-# token = "..."  # Protect this file if it contains a token.
-```
-
-Environment variables override the file. Loopback HTTP is allowed for local testing. Upload and deletion require the token; status and downloads do not send it.
-
-```bash
-ff upload ./report.pdf --ttl 24h
-ff download <id-or-url> -o ./report.pdf
-ff info <id-or-url>
-ff rm <id-or-url>
-```
-
-Commands emit JSON on stdout and progress/errors on stderr. Upload returns a ready reference only after verification. Interrupted uploads resume using a locked cache keyed by server and source path, with full SHA-256/size/options checked before reuse. Changed sources require `--restart`. Lost PATCH responses recover via HEAD. `--chunk-size` defaults to 64 MiB; `--timeout` defaults to one hour and should be increased for slow or very large transfers.
-
-Downloads resume through Range requests, verify the complete SHA-256, and atomically replace the destination only after verification. Redirects, foreign origins and malformed references are rejected. Partial files remain for retries. Lock acquisition and response-body reads respect the transfer deadline; special files are rejected. Small lock files intentionally remain beside destinations and in the upload cache to preserve coordination. Configure cache and size limits with `FF_CACHE_DIR` and `FF_MAX_BYTES`.
+The `ff` executable is now maintained separately in
+[byteforge-mcp-file-friend-cli](https://github.com/jmazzahacks/byteforge-mcp-file-friend-cli).
+Install that application on hosts that upload or download files from a shell.
+This SDK supplies `Client` and `open_reference`; version 0.0.3 no longer installs
+an `ff` command or the `byteforge_mcp_file_friend_api_python.cli` module.
+Existing `FF_*` settings and resume caches remain compatible.
 
 ## Tool helper
 
@@ -44,27 +35,27 @@ The trusted server may also come from `FF_SERVER_URL`. The helper ignores refere
 
 ## Local development and validation
 
-The virtual environment lives at this repository root. Preserve `.gitignore` when recreating it.
+The virtual environment lives at this repository root. On a fresh clone, create
+it with `uv venv --allow-existing --python 3.13 .`, preserving and restoring the
+tracked `.gitignore` if recreating it.
 
 ```bash
 source bin/activate
 uv pip install --require-hashes -r dev-requirements.txt -r build-requirements.txt
 uv pip install --no-build-isolation 'git+https://github.com/jmazzahacks/byteforge-mcp-file-friend-models.git@1282a681a41cd144b21593ab0820a724b9a485a6'
 uv build --wheel --no-build-isolation
-uv pip install --no-deps dist/byteforge_mcp_file_friend_api_python-0.0.1-py3-none-any.whl
+uv pip install --no-deps dist/byteforge_mcp_file_friend_api_python-0.0.3-py3-none-any.whl
 python -m pytest
 ruff check src tests
-ff --help
 ```
 
 Tests use the installed wheel, not source-path overrides, and exclude the parent workspace's database fixture. Third-party tooling pins and hashes are retained from validated workspace locks; refresh with the seven-day release-age gate. Cross-repository dependencies use token-free immutable GitHub revisions, never sibling editable/path dependencies.
 
-## Extraction status
+## Validation
 
-Imports now use `byteforge_mcp_file_friend_api_python`; CLI commands, `FF_*` settings, reference JSON and resume file names remain unchanged. The client owns its redirect-blocking handler, preserving the original behavior without importing core. The legacy workspace implementation remains intact until final consumer migration.
+SDK 0.0.3 passed all 23 isolated tests and lint against its installed wheel.
+Transfer, resume, integrity, origin, redirect and request-identity coverage remains
+in the SDK; CLI-specific checks live in the CLI repository. These local checks do
+not establish production throughput or a live email pilot.
 
-Licensed under MIT; see `LICENSE`. Public repository: `jmazzahacks/byteforge-mcp-file-friend-api-python`.
-
-## Extraction validation
-
-The installed client wheel passed 20 tests plus lint with no core, backend, Flask or PostgreSQL driver installed. The `ff` entry point was verified. Installed as a test artifact in the backend environment, the wheel also enabled all 33 backend tests and nine crash subtests to pass with real tusd and disposable PostgreSQL, with no skips. This included subprocess CLI upload/download, interrupted upload recovery, `open_reference` and an actual PostgreSQL restart during an upload. No sibling path dependency was added to package metadata; reproducible backend test dependency pinning follows client publication.
+Licensed under MIT; see `LICENSE`. Created by Jason Byteforge (@jmazzahacks).
